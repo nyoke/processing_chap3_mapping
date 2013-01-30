@@ -1,5 +1,3 @@
-import java.awt.Color;
-
 import processing.core.*;
 
 public class Mapping extends PApplet {
@@ -13,6 +11,8 @@ public class Mapping extends PApplet {
 
 	public void setup() {
 		size(640, 400);
+		PFont font = loadFont("Serif-12.vlw");
+		textFont(font);
 		mapImage = loadImage("http://benfry.com/writing/map/map.png");
 
 		// 各州の座標を保持するファイルをもとにデータの表を作成
@@ -56,23 +56,28 @@ public class Mapping extends PApplet {
 	void drawData(float x, float y, String abbrev) {
 		// 州のデータ値を取得
 		float value = dataTable.getFloat(abbrev, 1);
+		float radius = 0;
 		
-		//　データ値を2から40の間の数にリマップ
-		float mapped = map(value, dataMin, dataMax, 2, 40);
+		if(value >= 0)
+		{
+			radius = map(value, 0, dataMax, 1.5f, 15);
+			fill(color(0, 0, 255));
+		}
+		else
+		{
+			 radius = map(value, 0, dataMin, 1.5f, 15);
+			fill(color(255, 0, 0));
+		}
+		ellipseMode(RADIUS);
+		ellipse(x, y, radius, radius);
 		
-		// 楕円を描画
-		// その1 楕円の大きさでマップ
-		//ellipse(x, y, mapped, mapped);
-		
-		// その2 楕円の色を2色間で変化
-		float percent = norm(value, dataMin, dataMax);
-		// RGBの場合（変化が大きい場合にはこっちを使う）
-		// int between = lerpColor(color(255, 0, 0), color(0, 0, 255) , percent);
-		// HSBを使う場合（変化が小さい場合にはこっちの方がよい）
-		int between = lerpColor(color(255, 0, 0), color(0, 0, 255) , percent, HSB);
-
-		fill(between);
-		ellipse(x, y, 15, 15);
+		if(dist(x, y, mouseX, mouseY) < radius + 2)
+		{
+			fill(0);
+			textAlign(CENTER);
+			
+			text(value + " (" + abbrev + ")", x, y -radius - 4);
+		}
 		
 	}
 }
